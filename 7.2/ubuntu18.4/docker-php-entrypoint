@@ -1,0 +1,15 @@
+#!/bin/sh
+set -e
+
+# first arg is `-f` or `--some-option`
+if [ "${1#-}" != "$1" ]; then
+	set -- php "$@"
+fi
+
+# allow the container to be started with `--user`
+if [ "$1" = 'php' -a "$(id -u)" = '0' ]; then
+	find . \! -user www-data -exec chown www-data '{}' +
+	exec gosu www-data "$0" "$@"
+fi
+
+exec "$@"
